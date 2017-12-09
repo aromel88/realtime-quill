@@ -1,0 +1,31 @@
+// makes the bubble wider to accommodate custom link text
+.ql-bubble {
+  .ql-tooltip {
+    width: 145px;
+  }
+}
+
+// adjusts the [B U I Link] display to work with the wider link text width
+.ql-bubble .ql-toolbar .ql-formats {
+  margin: 0;
+  padding: 8px 12px;
+  width: 100%;
+  &:first-child {
+    margin-left: 0;
+  }
+  .ql-bold {
+    margin-left: 5px;
+  }
+  .ql-bold, .ql-italic, .ql-underline {
+    margin-right: 10px;
+  }
+}
+
+// makes the first paragraph that is the direct child of the editor have no margin-top
+.ql-editor > p:first-of-type {
+  margin-top: 0;
+}
+.ql-editor {
+  margin-top: 50px;
+  overflow: visible;
+}
