@@ -33,8 +33,13 @@ export class QuillComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.editor.on('editor-change', this.editorChange.bind(this));
     this.gun.get('1234').on((data) => {
-      const newBody = JSON.parse(data.bodyAsDeltas);
-      this.editor.setContents(newBody, 'gun');
+      const currentBody = JSON.stringify(this.editor.getContents());
+      if (data.bodyAsDeltas !== currentBody) {
+        const selection = this.editor.getSelection();
+        const newBody = JSON.parse(data.bodyAsDeltas);
+        this.editor.setContents(newBody, 'user');
+        this.editor.setSelection(selection);
+      }
     });
   }
 
@@ -45,13 +50,11 @@ export class QuillComponent implements OnInit, AfterViewInit {
    */
   editorChange(name, ...args): void {
     if (name === 'text-change') {
-      if (args[2] === 'user') {
-        const deltaString = JSON.stringify(args[0]);
-        const delta = {
-          bodyAsDeltas: deltaString
-        };
-        this.gun.get('1234').put(delta);
-      }
+      const deltaString = JSON.stringify(this.editor.getContents());
+      const delta = {
+        bodyAsDeltas: deltaString
+      };
+      this.gun.get('1234').put(delta);
     }
   }
 }
