@@ -51,12 +51,8 @@ export class QuillComponent implements OnInit {
   }
 
   bindQuillToY(y): void  {
-    console.log('something');
     (<any>window).yquill = y;
-
     (<any>window).quill = this.editor;
-
-    // bind quill to richtext type
     y.share.richtext.bindQuill((<any>window).quill);
   }
 }
