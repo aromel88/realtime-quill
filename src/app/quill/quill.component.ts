@@ -41,7 +41,8 @@ export class QuillComponent implements OnInit {
       },
       connector: {
         name: 'websockets-client',
-        room: 'richtext-example'
+        room: 'richtext-example',
+        url: 'http://192.168.1.156:1234'
       },
       share: {
         richtext: 'Richtext'
