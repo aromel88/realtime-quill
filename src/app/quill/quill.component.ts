@@ -1,19 +1,25 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+declare var require: any;
 
-import * as Gun from 'gun';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+
 import * as Quill from 'quill';
+import Y from 'yjs';
+import yWebsocketsClient from 'y-websockets-client';
+import yMemory from 'y-memory';
+import yArray from 'y-array';
+import yRichText from 'y-richtext';
+Y.extend(yWebsocketsClient, yMemory, yArray, yRichText);
 
 @Component({
   selector: 'app-quill',
   templateUrl: './quill.component.html',
   styleUrls: ['./quill.component.scss']
 })
-export class QuillComponent implements OnInit, AfterViewInit {
+export class QuillComponent implements OnInit {
 
   @ViewChild('editor') editorNode: ElementRef;
 
   editor: Quill.Quill;
-  gun = new Gun('http://localhost:8080/gun');
 
   constructor(
   ) { }
@@ -28,33 +34,28 @@ export class QuillComponent implements OnInit, AfterViewInit {
       theme: 'bubble',
     };
     this.editor = new Quill(this.editorNode.nativeElement, quillOptions);
-  }
 
-  ngAfterViewInit(): void {
-    this.editor.on('editor-change', this.editorChange.bind(this));
-    this.gun.get('1234').on((data) => {
-      const currentBody = JSON.stringify(this.editor.getContents());
-      if (data.bodyAsDeltas !== currentBody) {
-        const selection = this.editor.getSelection();
-        const newBody = JSON.parse(data.bodyAsDeltas);
-        this.editor.setContents(newBody, 'user');
-        this.editor.setSelection(selection);
+    Y({
+      db: {
+        name: 'memory'
+      },
+      connector: {
+        name: 'websockets-client',
+        room: 'richtext-example'
+      },
+      share: {
+        richtext: 'Richtext'
       }
-    });
+    }).then(this.bindQuillToY.bind(this));
   }
 
-  /**
-   * handle change events that happen in the quill editor
-   * @param name { string } the name of the event
-   * @param args { array<any> } arguments passed by event
-   */
-  editorChange(name, ...args): void {
-    if (name === 'text-change') {
-      const deltaString = JSON.stringify(this.editor.getContents());
-      const delta = {
-        bodyAsDeltas: deltaString
-      };
-      this.gun.get('1234').put(delta);
-    }
+  bindQuillToY(y): void  {
+    console.log('something');
+    (<any>window).yquill = y;
+
+    (<any>window).quill = this.editor;
+
+    // bind quill to richtext type
+    y.share.richtext.bindQuill((<any>window).quill);
   }
 }
